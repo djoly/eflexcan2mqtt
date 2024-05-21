@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "eflexcan2mqtt"
+version = "0.1.0"
+description = ""
+authors = ["David Joly <davidpjoly@yahoo.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-can = "4.3.1"
+paho-mqtt = "2.1.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pylint.'MESSAGES CONTROL']
+max-line-length = 140
