@@ -4,7 +4,6 @@ import logging
 import logging.handlers
 import os
 import argparse
-import json
 from typing import List
 import psutil
 import can
@@ -72,35 +71,19 @@ def add_signal_handlers():
         loop.add_signal_handler(sig, lambda: asyncio.create_task(shutdown(sig)))
 
 
-# async def shutdown(signal, loop) -> None:
-#     """Cleanup tasks tied to the service's shutdown."""
-#     logging.info("Received exit signal... %s", signal.name)
-#     tasks = [t for t in asyncio.all_tasks() if t is not
-#              asyncio.current_task()]
+def log_memory_info(msg: str):
+    """Logs memory info"""
+    mem_info = process.memory_info()
+    logger.info("%s Current memory usage of process %s: RSS %s, VMS %s", msg, pid, mem_info.rss, mem_info.vms)
 
-#     for task in tasks:
-#         task.cancel()
-
-#     logging.info("Cancelling %s outstanding tasks", len(tasks))
-#     await asyncio.gather(*tasks)
-#     loop.stop()
-
-# async def publish_task() -> None:
-#     """publish task"""
-#     while True:
-
-#         if args.profile:
-#             mem_info = process.memory_info()
-#             logger.info("Current memory usage of process %s: RSS %s, VMS %s", pid, mem_info.rss, mem_info.vms)
-
-#         await asyncio.sleep(args.publish_interval)
-#         publish_data()
 
 async def main() -> None:
     with can.Bus(
         interface=args.can_interface, channel=args.can_channel
     ) as bus:
         
+        add_signal_handlers()
+
         message_handler = MessageHandler(logger)
         mqtt_client = PahoClient(
             topic = args.mqtt_topic,
@@ -117,27 +100,31 @@ async def main() -> None:
         ]
 
         loop = asyncio.get_running_loop()
+
+        log_memory_info("Memory Before can.Notifier initialization.")
+
         notifier = can.Notifier(bus, listeners, loop = loop)
 
         try:
             while True:
-                if args.profile:
-                    mem_info = process.memory_info()
-                    logger.info("Current memory usage of process %s: RSS %s, VMS %s", pid, mem_info.rss, mem_info.vms)
-
                 await asyncio.sleep(args.publish_interval)
                 mqtt_publisher.publish_data()
+                if args.profile: log_memory_info("In main task loop, after mqtt publish.")
 
-        except asyncio.CancelledError:
-            logger.info("Shutting down")
+        except asyncio.CancelledError as e:
+            logger.info("Got shut down signal")
+            log_memory_info("Shuting down...")
 
         finally:
-            #Clean-up
             notifier.stop()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        logger.info("Starting event loop...")
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Received keyboard interrupt. Shut down complete.")
 
 
 
