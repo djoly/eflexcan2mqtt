@@ -194,12 +194,12 @@ Message(arbitration_id = 0x\2, timestamp = \1, data = [0x\3,0x\4,0x\5,0x\6,0x\7,
 
 ## References and Links
 
-###Documentation
+### Documentation
 
 - [Python struct](https://docs.python.org/3/library/struct.html)
 - [Python-Can](https://python-can.readthedocs.io/en/stable/index.html)
 
-###Socketcan Utils and hardware
+### Socketcan Utils and hardware
 
 - [Socketcan compatible hardware](https://elinux.org/CAN_Bus)
 - [CAN Utils elinux](http://elinux.org/CAN_Bus)
@@ -208,10 +208,10 @@ Message(arbitration_id = 0x\2, timestamp = \1, data = [0x\3,0x\4,0x\5,0x\6,0x\7,
 - [Innomaker USB CAN Analyzer](https://www.inno-maker.com/product/usb2can-cable/)
 
 
-###Fortress Power BMS Software
+### Fortress Power BMS Software
 
-The Fortress BMS software can be downloaded by following the link below and selected "eFlex" from the menu.
-The software is for Windows. Follow the firmware update instructions to install the BMS software. You don't
+The Fortress BMS software can be downloaded by following the link below and selecting "eFlex" from the menu.
+The software is for Windows. The firmware update instructions show how to install the BMS software. You don't
 need to update the firmware, nor should you unless instructed to by Fortress Power tech support.
 
 - [Fortress BMS Software](https://www.fortresspower.com/firmware/)
