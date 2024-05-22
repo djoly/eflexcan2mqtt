@@ -3,7 +3,7 @@
 
 **DISCLAIMER: This project is in no way affiliated with Fortress Power. It comes with no warrantees or guarantees. Use at your own risk.**
 
-The intent of this project is to develop a means to harvest battery data from the Fortress eFlex batteries. This data can be saved to a timeseries database, such as InfluxDB, for visualization and analysis.
+The intent of this project is to provide a means to harvest battery data from the Fortress Power eFlex batteries. This data can be saved to a timeseries database, such as InfluxDB, for visualization and analysis.
 
 Example JSON published to MQTT:
 
@@ -113,7 +113,7 @@ Example JSON published to MQTT:
 
 ## Development and Testing
 
-Volunteers with ready access to Fortress eFlex batteries are welcome to contribute to this project. There are quite a few bytes that I have not been able to decipher.
+Volunteers with ready access to Fortress Power eFlex batteries are welcome to contribute to this project. There are quite a few bytes that have not yet been decoded.
 
 TO-DOs
 
@@ -194,12 +194,12 @@ Message(arbitration_id = 0x\2, timestamp = \1, data = [0x\3,0x\4,0x\5,0x\6,0x\7,
 
 ## References and Links
 
-Documentation
+###Documentation
 
 - [Python struct](https://docs.python.org/3/library/struct.html)
 - [Python-Can](https://python-can.readthedocs.io/en/stable/index.html)
 
-Socketcan Utils and hardware
+###Socketcan Utils and hardware
 
 - [Socketcan compatible hardware](https://elinux.org/CAN_Bus)
 - [CAN Utils elinux](http://elinux.org/CAN_Bus)
@@ -208,6 +208,11 @@ Socketcan Utils and hardware
 - [Innomaker USB CAN Analyzer](https://www.inno-maker.com/product/usb2can-cable/)
 
 
-Fortress Power BMS Software (select eFlex from menu)
+###Fortress Power BMS Software
+
+The Fortress BMS software can be downloaded by following the link below and selected "eFlex" from the menu.
+The software is for Windows. Follow the firmware update instructions to install the BMS software. You don't
+need to update the firmware, nor should you unless instructed to by Fortress Power tech support.
+
 - [Fortress BMS Software](https://www.fortresspower.com/firmware/)
 - [CAN tool](https://www.amazon.com/Analyzer-Debugger-Compatible-Connect-Standard/dp/B07PHJR3YW)
