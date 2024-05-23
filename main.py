@@ -1,8 +1,10 @@
 import asyncio
+import configparser
 import signal
 import logging
 import logging.handlers
 import os
+import sys
 import argparse
 from typing import List
 import psutil
@@ -15,8 +17,37 @@ from eflexcan2mqtt.mqtt_publisher import MQTTPublisher
 pid = os.getpid()
 process = psutil.Process(pid)
 
-#logFilename = os.getenv('LOG_FILENAME', '/var/log/app/eflex-data-publisher.out')
-logFilename = os.getenv('LOG_FILENAME', './logs/eflexcan2mqtt.out')
+parser = argparse.ArgumentParser(description="Fortress eFlex Battery CAN 2 MQTT Shell Script")
+parser.add_argument("--config_path",help="The path to the configuration file", default="./conf/eflexcan2mqtt.ini")
+args = parser.parse_args()
+
+if not os.path.isfile(args.config_path):
+    print ("Configuration file %s not found. Shutting down.", args.config_path)
+    sys.exit(1)
+
+config_parser = configparser.ConfigParser()
+config_parser.read(args.config_path)
+
+config = {
+    'log_dir': config_parser['logging'].get('log_dir'),
+    'log_level': config_parser['logging'].get('log_level', "INFO"),
+    'profile': config_parser['logging'].getboolean('profile', 'no'),
+    'can_interface': config_parser['can'].get('interface', 'socketcan'),
+    'can_channel': config_parser['can'].get('channel'),
+    'mqtt_hostname' : config_parser['mqtt'].get('hostname'),
+    'mqtt_port' : int(config_parser['mqtt'].get('port', '1883')),
+    'mqtt_topic' : config_parser['mqtt'].get('topic'),
+    'mqtt_keepalive' : int(config_parser['mqtt'].get('keepalive', '60')),
+    'mqtt_client_id' : config_parser['mqtt'].get('client_id'),
+    'mqtt_publish_interval' : int(config_parser['mqtt'].get('publish_interval', '60')),
+    'mqtt_qos' : int(config_parser['mqtt'].get('qos', '2')),
+}
+
+if not os.path.isdir(config['log_dir']):
+    print ("Specified log directy %s is not a directory. Shutting down.", config['log_dir'])
+    sys.exit(1)
+
+logFilename: str = str(config['log_dir']).rstrip('/') + '/eflexcan2mqtt.out'
 
 logger = logging.getLogger(__name__)
 handler = logging.handlers.RotatingFileHandler(logFilename, maxBytes=524288, backupCount=5)
@@ -25,24 +56,11 @@ formatter = logging.Formatter(
     '%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-logger.setLevel(os.getenv("LOG_LEVEL", "DEBUG"))
+logger.setLevel(config['log_level'])
 
-parser = argparse.ArgumentParser(description="Fortress eFlex Battery CAN 2 MQTT Shell Script")
-parser.add_argument("--mqtt_host",help="The hostname of the MQTT server", default="localhost")
-parser.add_argument("--mqtt_port",help="The port of the MQTT server", type=int, default=1883)
-parser.add_argument("--mqtt_topic",help="The topic the data is published to.", default="eflexbatteries")
-parser.add_argument("--mqtt_client_id", help="MQTT client id", default="")
-parser.add_argument("--mqtt_keepalive", help="MQTT keepalive time", type=int, default=60)
-parser.add_argument("--mqtt_qos", help="MQTT QoS", type=int, default=2)
-parser.add_argument("--publish_interval", help="MQTT publish interval, in seconds", type=int, default=60)
-parser.add_argument("--can_interface",help="The CAN interface (e.g. socketcan)", default="socketcan")
-parser.add_argument("--can_channel",help="The CAN channel (i.e. can0, vcan0, etc)", default="vcan0")
-parser.add_argument("--can_log_file",help="The CAN logfile", default="eflexbatteries-can-message-log.asc")
-parser.add_argument("--profile", help="Enable memory profiling", action="store_const", const=True, default=False)
 
-args = parser.parse_args()
 logger.info("Running process ID is %s", pid)
-logger.info("Running with args: %s", args)
+logger.info("Running with config: %s", config)
 
 
 def add_signal_handlers():
@@ -79,19 +97,19 @@ def log_memory_info(msg: str):
 
 async def main() -> None:
     with can.Bus(
-        interface=args.can_interface, channel=args.can_channel
+        interface=config['can_interface'], channel=config['can_channel']
     ) as bus:
         
         add_signal_handlers()
 
         message_handler = MessageHandler(logger)
         mqtt_client = PahoClient(
-            topic = args.mqtt_topic,
-            hostname = args.mqtt_host,
-            port = args.mqtt_port,
-            client_id = args.mqtt_client_id,
-            qos = args.mqtt_qos,
-            keepalive = args.mqtt_keepalive
+            topic = config['mqtt_topic'],
+            hostname = config['mqtt_hostname'],
+            port = config['mqtt_port'],
+            client_id = config['mqtt_client_id'],
+            qos = config['mqtt_qos'],
+            keepalive = config['mqtt_keepalive']
         )
         mqtt_publisher = MQTTPublisher(logger = logger, mqtt_client = mqtt_client, message_handler = message_handler)
 
@@ -107,9 +125,9 @@ async def main() -> None:
 
         try:
             while True:
-                await asyncio.sleep(args.publish_interval)
+                await asyncio.sleep(config['mqtt_publish_interval'])
                 mqtt_publisher.publish_data()
-                if args.profile: log_memory_info("In main task loop, after mqtt publish.")
+                if config['profile']: log_memory_info("In main task loop, after mqtt publish.")
 
         except asyncio.CancelledError as e:
             logger.info("Got shut down signal")

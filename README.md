@@ -178,19 +178,24 @@ Tests can also be run from within Visual Studio Code
 
 #### Creating CAN Message Test Fixtures
 
+If more CAN bus test fixtures are required, they can be created using a regex find/replace in a capable text editor.
+Here is a sample regex to parse a can-utils candump log into named timestamp, id, and data byte parts in the Xed text editor.
 
-Sample Regex to parse a can-utils candump log into named timestamp, id, and data parts.
+*NOTE: Depending on the regex engine used by your text editor, this regex may need to change.*
 
+Run a search for the regex. This should match every line in the log produced by candump.
 
 ```
 \((\d{10}\.\d{6})\)\scan0\s(?<id>\d{2}[0-9A-Z]{1})#(?<b1>[0-9A-Z]{2})(?<b2>[0-9A-Z]{2})(?<b3>[0-9A-Z]{2})(?<b4>[0-9A-Z]{2})(?<b5>[0-9A-Z]{2})(?<b6>[0-9A-Z]{2})(?<b7>[0-9A-Z]{2})(?<b8>[0-9A-Z]{2})
 ```
 
-And use the groups to create can.Message objects for each message:
+Then replace the log entries with can.Message objects by using the following replacement:
 
 ```
 Message(arbitration_id = 0x\2, timestamp = \1, data = [0x\3,0x\4,0x\5,0x\6,0x\7,0x\8,0x\9,0x\10]),
 ```
+
+*CAUTION: CAN message logs can get big fast! You may want to copy a subset of messages to another file before running a find/replace.*
 
 ## References and Links
 
