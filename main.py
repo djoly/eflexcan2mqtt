@@ -14,10 +14,16 @@ from eflexcan2mqtt.message_handler import MessageHandler
 from eflexcan2mqtt.paho_client import PahoClient
 from eflexcan2mqtt.mqtt_publisher import MQTTPublisher
 
+# Ensure we don't blow up if there's no such thing as stdout on the system.
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w")
+
 pid = os.getpid()
 process = psutil.Process(pid)
 
-parser = argparse.ArgumentParser(description="Fortress eFlex Battery CAN 2 MQTT Shell Script")
+parser = argparse.ArgumentParser(description="Fortress eFlex Battery CAN 2 MQTT Service")
 parser.add_argument("--config_path",help="The path to the configuration file", default="./conf/eflexcan2mqtt.ini")
 args = parser.parse_args()
 
