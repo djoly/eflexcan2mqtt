@@ -133,7 +133,7 @@ Testing and development is easier with good tooling. Socketcan and can-tools are
 To dump real CAN messages, establish a can interface:
 
 ```bash
-$ sudo ip link set can0 up type can bitrate 250000
+$ sudo ip link set can0 up type can bitrate 250000 restart-ms 100
 ```
 
 Then use candump to dump the CAN messages to a log file:
