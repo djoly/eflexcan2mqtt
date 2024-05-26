@@ -1,0 +1,17 @@
+[logging]
+log_dir=/var/log
+log_level=INFO
+profile=no
+
+[can]
+interface=socketcan
+channel=can0
+
+[mqtt]
+hostname=localhost
+port=1883
+keepalive=60
+client_id=
+qos=2
+topic=eflexbatteries
+publish_interval=120

@@ -1,3 +1,4 @@
 logs/*out*
 *__pycache__*
 build/*
+dist/x86_64/*
