@@ -111,6 +111,95 @@ Example JSON published to MQTT:
 ]
 ```
 
+## Installing
+
+This application can be installed as a systemd service. Distribution tarballs can be found in the ./dist directory. The tarballs contained
+built output from PyInstaller, a eflexcan2mqtt.service file, a eflexcan2mqtt.ini file, and an install.sh shell script to install.
+
+The installer script assumes the following:
+
+1. Systemd configuration path at /etc/systemd/system
+2. systemctl available at the command line
+
+Download the distribution for your platform and run the install script.
+
+```bash
+$ wget https://github.com/djoly/eflexcan2mqtt/raw/main/dist/eflexcan2mqtt_x86_64.tgz
+$ tar -xzf eflexcan2mqtt_x86_64.tgz
+$ cd eflexcan2mqtt_x86_64
+$ sudo ./install.sh
+```
+
+The installer script will copy the python app and dependencies to /usr/local/bin/eflexcan2mqtt.
+The eflexcan2mqtt.service file will be copied to /etc/systemd/system/eflexcan2mqtt.service.
+The eflexcan2mqtt.ini file will be copied to /etc/eflexcan2mqtt.ini.
+
+Configuration changes can be made to the ini config file.
+
+The installer will enable the eflexcan2mqtt.service, but it will not start the service. Before starting the service, make sure
+the CAN interface is up.
+
+You can run the following command to create a can0 interface, assuming socketcan compatible hardware is used.
+
+```bash
+$ sudo ip link set can0 up type can bitrate 250000 restart-ms 100
+```
+
+Alternately, you can use the networkd service to manage the can interface.
+
+First, add the can0 interface to the network configuration.
+
+```ini
+# /etc/systemd/network/80-can0.network
+[Match]
+Name=can0
+
+[CAN]
+BitRate=250K
+RestartSec=100ms
+```
+
+If the network service is not running, enable and start it:
+
+```bash
+$ sudo systemctl enable systemd-networkd
+$ sudo systemctl start systemd-networkd
+```
+
+If it's already running, restart the service:
+
+```bash
+$ sudo systemctl restart systemd-networkd
+```
+
+Verify the can0 interface is up:
+
+```bash
+$ ifconfig
+```
+
+You should see a can0 interface:
+
+```bash
+can0: flags=193<UP,RUNNING,NOARP>  mtu 16
+unspec 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00  txqueuelen 10  (UNSPEC)
+RX packets 0  bytes 0 (0.0 B)
+RX errors 0  dropped 0  overruns 0  frame 0
+TX packets 0  bytes 0 (0.0 B)
+TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+```
+
+Use candump to verify the CAN messages are being received:
+
+```bash
+$ candump can0
+```
+
+You should see CAN arbitration IDs starting with 10 and 60. Each battery in the network will send a set of 11 10X messages and a set of seven 60X messages. The batteries are numbered in the network, and they send the messages in order (at least in my system), from 101 and 601, 102 and 602, to the final battery. If you have more than nine batteries, you will see A for 10, B for 11, etc, as the numbers are in hexadecimal. After the last battery sends its messages, the first will start over again.
+
+Make sure you have the mosquitto MQTT server reachable, and you should be all set to start publishing battery data.
+
+
 ## Development and Testing
 
 Volunteers with ready access to Fortress Power eFlex batteries are welcome to contribute to this project. There are quite a few bytes that have not yet been decoded.
