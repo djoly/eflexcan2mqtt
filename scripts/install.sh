@@ -6,6 +6,7 @@
 
 cp ./eflexcan2mqtt.service /etc/systemd/system
 cp ./eflexcan2mqtt.ini /etc
+rm -rf /usr/local/bin/eflexcan2mqtt
 cp -r ./eflexcan2mqtt /usr/local/bin/
 
 systemctl enable eflexcan2mqtt
