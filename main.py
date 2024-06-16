@@ -10,6 +10,7 @@ from typing import List
 import psutil
 import can
 from can.notifier import MessageRecipient
+from can.bus import BusABC
 from eflexcan2mqtt.message_handler import MessageHandler
 from eflexcan2mqtt.paho_client import PahoClient
 from eflexcan2mqtt.mqtt_publisher import MQTTPublisher
@@ -99,6 +100,27 @@ def log_memory_info(msg: str):
     """Logs memory info"""
     mem_info = process.memory_info()
     logger.info("%s Current memory usage of process %s: RSS %s, VMS %s", msg, pid, mem_info.rss, mem_info.vms)
+
+def _on_message_available(self, bus: BusABC) -> None:
+    """This is a patch for the standard can.Notifier._on_message_available method,
+    which does not capture CAN network errors. During real-world operation, socketcan
+    network interfaces will sometimes do down. The interface can be configured at the OS level
+    to recover, but if the error is not handled no more CAN bus messages will be processed by
+    the event handler when the network interface is back up. There are two error codes observed
+    when the network goes down:
+        - Error code 100 is "Network is down".
+        - Error code 19 is "No such device".
+    """
+    try:
+        if msg := bus.recv(0):
+            self._on_message_received(msg)
+    except can.CanOperationError as e:
+        if e.error_code in (100, 19):
+            logger.error("CAN network down.")
+        else:
+            raise
+            
+can.Notifier._on_message_available =  _on_message_available
 
 
 async def main() -> None:
