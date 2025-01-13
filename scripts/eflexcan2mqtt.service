@@ -4,6 +4,7 @@ Description=eFlex CAN MQTT Service
 [Service]
 Type=simple
 Restart=always
+RestartSec=30
 ExecStart=/usr/local/bin/eflexcan2mqtt/eflexcan2mqtt --config_path /etc/eflexcan2mqtt.ini
   
 [Install]
