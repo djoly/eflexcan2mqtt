@@ -13,11 +13,9 @@ MSG_ID_10X_COUNT = 11
 # 0x60X messages are sent by each battery, 7 messages in a row.
 MSG_ID_60X_COUNT = 7
 
-# Expected order of first bytes. Only the first six messages of 60X message types are
-# tested due to the typically observed value of the 7th message being 0x11, which
-# is not known.
+# Expected order of first bytes.
 MSG_10X_FIRST_BYTE_ORDER = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B]
-MSG_60X_FIRST_BYTE_ORDER = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06]
+MSG_60X_FIRST_BYTE_ORDER = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x11]
 
 MSG_TYPE_10 = '10'
 MSG_TYPE_60 = '60'

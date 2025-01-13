@@ -52,6 +52,22 @@ def parse_cell_voltages(data60) -> List[int]:
 
     return list(struct.unpack('<HHHHHHHHHHHHHHHH', bytearray(data60[0:32])))
 
+def parse_temps(data60) -> dict:
+    """Parses the temperature sensor values. The last seven bytes in the 60X set of messages
+    contain the temperatures. The Fortress BMS software subtracts 40
+    from the temp values sent from the BMS. This can be deduced by sensor value #7
+    from the BMS detail window that displays -40"""
+
+    return {
+        '1' : data60[42] - 40,
+        '2' : data60[43] - 40,
+        '3' : data60[44] - 40,
+        '4' : data60[45] - 40,
+        '5' : data60[46] - 40,
+        '6' : data60[47] - 40,
+    }
+
+
 def parse_battery_data(data10: List[int], data60: List[int]) -> dict:
     """Processes and formats the battery data from the raw compiled message bytes."""
 
@@ -74,5 +90,6 @@ def parse_battery_data(data10: List[int], data60: List[int]) -> dict:
         'software_version' : software_version,
         'hardware_version' : str(hardware_version, 'UTF-8'),
         'lifetime_discharge_energy' : struct.unpack('>I', bytearray(data10[31:35]))[0],
-        'cell_voltages' : cell_voltages
+        'cell_voltages' : cell_voltages,
+        'temps' : parse_temps(data60),
     }

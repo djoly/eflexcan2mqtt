@@ -34,6 +34,20 @@ def test_parse_cell_voltages(data60: List[int]):
     assert cell_voltages == [3322, 3322, 3322, 3322, 3322, 3322, 3322, 3322,
                              3322, 3322, 3322 ,3322, 3322, 3322, 3322, 3322]
 
+def test_parse_temps(data60: List[int]):
+    """Validate temp sensor values are parsed"""
+
+    temps = decode.parse_temps(data60)
+    assert 6 == len(temps)
+    assert temps == {
+        '1': 30,
+        '2': 29,
+        '3': 28,
+        '4': 29,
+        '5': 30,
+        '6': 32,
+    }
+
 
 def test_parse_battery_data(data10: List[int], data60: List[int]):
     """Verifies battery_data_parse function properly parses battery data."""
@@ -54,7 +68,8 @@ def test_parse_battery_data(data10: List[int], data60: List[int]):
         'hardware_version' : "a",
         'lifetime_discharge_energy' : 194037,
         'cell_voltages' : [3322, 3322, 3322, 3322, 3322, 3322, 3322, 3322,
-                                3322, 3322, 3322 ,3322, 3322, 3322, 3322, 3322]
+                                3322, 3322, 3322 ,3322, 3322, 3322, 3322, 3322],
+        'temps': {'1': 30, '2': 29,'3': 28,'4': 29,'5': 30,'6': 32}
     }
 
     assert battery_data == expected
