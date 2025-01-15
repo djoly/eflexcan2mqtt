@@ -56,7 +56,9 @@ def parse_temps(data60) -> dict:
     """Parses the temperature sensor values. The last seven bytes in the 60X set of messages
     contain the temperatures. The Fortress BMS software subtracts 40
     from the temp values sent from the BMS. This can be deduced by sensor value #7
-    from the BMS detail window that displays -40"""
+    from the BMS detail window that displays -40. The 8th byte of the message is normally 0.
+    Example: 0x11 0x3D 0x3C 0x3B 0x3C 0x3D 0x3F 0x00
+    """
 
     return {
         '1' : data60[42] - 40,
