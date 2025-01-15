@@ -249,7 +249,7 @@ $ python3 main.py
 Use mosquitto_sub to receive published battery data.
 
 ```bash
-$ mosquito_sub -h localhost -p 1883 -t eflexbatteries
+$ mosquitto_sub -h localhost -p 1883 -t eflexbatteries
 ```
 
 

@@ -47,7 +47,7 @@ def parse_serial(serial_bytes: List) -> str:
 def parse_cell_voltages(data60) -> List[int]:
     """Parses cell voltages from combined data60 messages
     The cell voltage data appears to be little-endian, despite
-    most being big-endien.
+    most being big-endian.
     """
 
     return list(struct.unpack('<HHHHHHHHHHHHHHHH', bytearray(data60[0:32])))
