@@ -67,11 +67,36 @@ def parse_temps(data60) -> dict:
         '6' : data60[47] - 40,
     }
 
+def parse_alarm_status(data10: List[int]) -> str:
+    """Parses alarm status from aggregated 10X bytes."""
+    if data10[8] * 256 + data10[9] != 0:
+        return '1'
+
+    l2_flag, l1_flag = struct.unpack('<HH', bytearray(data10[42:46]))
+    if l2_flag != 0:
+        return '2'
+    if l1_flag != 0:
+        return '3'
+
+    return 'Normal'
+
+def parse_charge_relay_status(data10: List[int]) -> str:
+    """Determines the charge relay status from the 2nd byte of the 2nd 10X messages."""
+    return 'Make' if (data10[7] & 1) != 0 else 'Break'
+
+def parse_discharge_relay_status(data10: List[int]) -> str:
+    """Determines the discharge relay status from the 2nd byte of the 2nd 10X messages."""
+    return 'Make' if (data10[7] & 2) != 0 else 'Break'
+
+def parse_precharge_relay_status(data10: List[int]) -> str:
+    """Determines the precharge relay status from the 2nd byte of the 2nd 10X messages."""
+    return 'Make' if (data10[7] & 8) != 0 else 'Break'
 
 def parse_battery_data(data10: List[int], data60: List[int]) -> dict:
     """Processes and formats the battery data from the raw compiled message bytes."""
 
     battery_number, batteries_in_system, battery_voltage, battery_current, battery_soc = struct.unpack('>BBHhB', bytearray(data10[0:7]))
+    max_cell_voltage, max_cell_voltage_num, min_cell_voltage, min_cell_voltage_num = struct.unpack('>HBHB',bytearray(data10[21:27]))
     average_system_voltage, = struct.unpack(">H", bytearray(data10[10:12]))
     software_version, hardware_version = struct.unpack('>Hc', bytearray(data10[46:49]))
     cell_voltages = parse_cell_voltages(data60)
@@ -84,6 +109,10 @@ def parse_battery_data(data10: List[int], data60: List[int]) -> dict:
         'battery_soc': battery_soc,
         'battery_voltage': battery_voltage/10,
         'battery_current': battery_current/10,
+        'max_cell_voltage': max_cell_voltage,
+        'max_cell_voltage_num': max_cell_voltage_num,
+        'min_cell_voltage': min_cell_voltage,
+        'min_cell_voltage_num': min_cell_voltage_num,
         'system_average_voltage': average_system_voltage/10,
         'pre_volt': pre_volt/10,
         'insulation_resistance': insulation_resistance,
@@ -91,5 +120,9 @@ def parse_battery_data(data10: List[int], data60: List[int]) -> dict:
         'hardware_version' : str(hardware_version, 'UTF-8'),
         'lifetime_discharge_energy' : struct.unpack('>I', bytearray(data10[31:35]))[0],
         'cell_voltages' : cell_voltages,
+        'alarm_status' : parse_alarm_status(data10),
+        'charge_relay_status' : parse_charge_relay_status(data10),
+        'discharge_relay_status' : parse_discharge_relay_status(data10),
+        'precharge_relay_status' : parse_precharge_relay_status(data10),
         'temps' : parse_temps(data60),
     }

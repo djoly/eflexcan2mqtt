@@ -48,6 +48,33 @@ def test_parse_temps(data60: List[int]):
         '6': 32,
     }
 
+def test_parse_alarm_status_normal(data10: List[int]):
+    """Verifies non-alarm is parsed as normal status"""
+    assert 'Normal' == decode.parse_alarm_status(data10)
+
+def test_parse_alarm_status_1(data10_level1_alarm: List[int]):
+    """Verifies alarm level 1 is parsed as alarm status 1"""
+    assert '1' == decode.parse_alarm_status(data10_level1_alarm)
+
+def test_parse_charge_make_relay_status_alarm_normal(data10: List[int]):
+    """Verifies charge relay status is parsed from 10X data when no fault exists."""
+    assert 'Make' == decode.parse_charge_relay_status(data10)
+
+def test_parse_charge_break_relay_status_alarm_level1(data10_level1_alarm: List[int]):
+    """Verifies charge relay status is parsed from 10X data when level 1 fault exists."""
+    assert 'Break' == decode.parse_charge_relay_status(data10_level1_alarm)
+
+def test_parse_discharge_make_relay_status_alarm_normal(data10: List[int]):
+    """Verifies discharge relay status is parsed from 10X data when no fault exists."""
+    assert 'Make' == decode.parse_discharge_relay_status(data10)
+
+def test_parse_discharge_break_relay_status_alarm_level1(data10_level1_alarm: List[int]):
+    """Verifies discharge relay status is parsed from 10X data when level 1 fault exists."""
+    assert 'Break' == decode.parse_charge_relay_status(data10_level1_alarm)
+
+def test_parse_precharge_break_relay_status_alarm_normal(data10: List[int]):
+    """Verifies prescharge relay status is parsed from 10X data when no fault exists."""
+    assert 'Break' == decode.parse_precharge_relay_status(data10)
 
 def test_parse_battery_data(data10: List[int], data60: List[int]):
     """Verifies battery_data_parse function properly parses battery data."""
@@ -61,6 +88,14 @@ def test_parse_battery_data(data10: List[int], data60: List[int]):
         'battery_soc': 80,
         'battery_voltage': 53.1,
         'battery_current': -0.5,
+        'max_cell_voltage': 3320,
+        'max_cell_voltage_num': 1,
+        'min_cell_voltage': 3319,
+        'min_cell_voltage_num': 6,
+        'alarm_status': 'Normal',
+        'charge_relay_status': 'Make',
+        'discharge_relay_status': 'Make',
+        'precharge_relay_status': 'Break',
         'system_average_voltage': 53.0,
         'pre_volt': 53.3,
         'insulation_resistance': 65535,

@@ -30,7 +30,15 @@ EXPECTED_PAYLOAD = [
         "lifetime_discharge_energy": 144138,
         "cell_voltages": [3321, 3321, 3320, 3321, 3321, 3321, 3320, 3321, 3321, 3321, 3321, 3321, 3321, 3321, 3321, 3321],
         "time": 1715987139,
-        "temps": {"1": 25, "2": 24, "3": 24, "4": 24, "5": 25, "6": 27}
+        "temps": {"1": 25, "2": 24, "3": 24, "4": 24, "5": 25, "6": 27},
+        'max_cell_voltage': 3321,
+        'max_cell_voltage_num': 1,
+        'min_cell_voltage': 3320,
+        'min_cell_voltage_num': 3,
+        'alarm_status': 'Normal',
+        'charge_relay_status': 'Make',
+        'discharge_relay_status': 'Make',
+        'precharge_relay_status': 'Break',
     },
     {
         "battery_id": "2205075E0112",
@@ -47,7 +55,15 @@ EXPECTED_PAYLOAD = [
         "lifetime_discharge_energy": 148249,
         "cell_voltages": [3320, 3319, 3319, 3319, 3320, 3320, 3319, 3319, 3319, 3319, 3319, 3319, 3320, 3319, 3320, 3319],
         "time": 1715987139,
-        "temps": {"1": 31, "2": 29, "3": 29, "4": 29, "5": 30, "6": 33}
+        "temps": {"1": 31, "2": 29, "3": 29, "4": 29, "5": 30, "6": 33},
+        'max_cell_voltage': 3320,
+        'max_cell_voltage_num': 1,
+        'min_cell_voltage': 3319,
+        'min_cell_voltage_num': 2,
+        'alarm_status': 'Normal',
+        'charge_relay_status': 'Make',
+        'discharge_relay_status': 'Make',
+        'precharge_relay_status': 'Break',
 
     },
     {
@@ -65,6 +81,14 @@ EXPECTED_PAYLOAD = [
         "lifetime_discharge_energy": 162810, 
         "cell_voltages": [3319, 3319, 3319, 3319, 3319, 3319, 3319, 3319, 3319, 3319, 3319, 3319, 3319, 3319, 3319, 3319], 
         "time": 1715987139,
-        "temps": {"1": 25, "2": 24, "3": 23, "4": 24, "5": 27, "6": 27}
+        "temps": {"1": 25, "2": 24, "3": 23, "4": 24, "5": 27, "6": 27},
+        'max_cell_voltage': 3319,
+        'max_cell_voltage_num': 1,
+        'min_cell_voltage': 3319,
+        'min_cell_voltage_num': 1,
+        'alarm_status': 'Normal',
+        'charge_relay_status': 'Make',
+        'discharge_relay_status': 'Make',
+        'precharge_relay_status': 'Break',
     }
 ]
