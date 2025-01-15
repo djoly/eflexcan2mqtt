@@ -72,7 +72,7 @@ def parse_alarm_status(data10: List[int]) -> str:
     if data10[8] * 256 + data10[9] != 0:
         return '1'
 
-    l2_flag, l1_flag = struct.unpack('<HH', bytearray(data10[42:46]))
+    l2_flag, l1_flag = struct.unpack('>HH', bytearray(data10[42:46]))
     if l2_flag != 0:
         return '2'
     if l1_flag != 0:
@@ -80,16 +80,38 @@ def parse_alarm_status(data10: List[int]) -> str:
 
     return 'Normal'
 
+"""
+Relay status is determined by the 2nd byte of the 2nd 10X messages (or the eighth actual data byte).
+The three of the four bits are used to determine if the relay.
+The first (rightmost) bit is used for the charge relay. The second bit is used for the discharge relay.
+The fourth bit is used for the pre-charge relay.
+
+0000 - All relays open (break status)
+0001 - Charge relay in make status
+0010 - Discharge relay in make status
+0011 - Charge and discharge relay in make status
+1000 - Precharge relay in make status
+
+Bitwise operators can be used to check if a bit is set.
+
+0001 & 0001 = 0001 = 1
+0000 & 0001 = 0000 = 0
+0010 & 0001 = 0000 = 0
+0010 & 0010 = 0010 = 2
+0011 & 0001 = 0001 = 1
+0011 & 0010 = 0010 = 2
+1000 & 1000 = 1000 = 8
+"""
 def parse_charge_relay_status(data10: List[int]) -> str:
-    """Determines the charge relay status from the 2nd byte of the 2nd 10X messages."""
+    """Determines the charge relay status"""
     return 'Make' if (data10[7] & 1) != 0 else 'Break'
 
 def parse_discharge_relay_status(data10: List[int]) -> str:
-    """Determines the discharge relay status from the 2nd byte of the 2nd 10X messages."""
+    """Determines the discharge relay status"""
     return 'Make' if (data10[7] & 2) != 0 else 'Break'
 
 def parse_precharge_relay_status(data10: List[int]) -> str:
-    """Determines the precharge relay status from the 2nd byte of the 2nd 10X messages."""
+    """Determines the precharge relay status"""
     return 'Make' if (data10[7] & 8) != 0 else 'Break'
 
 def parse_battery_data(data10: List[int], data60: List[int]) -> dict:
