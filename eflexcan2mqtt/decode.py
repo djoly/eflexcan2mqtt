@@ -100,7 +100,7 @@ def parse_battery_data(data10: List[int], data60: List[int]) -> dict:
     average_system_voltage, = struct.unpack(">H", bytearray(data10[10:12]))
     software_version, hardware_version = struct.unpack('>Hc', bytearray(data10[46:49]))
     cell_voltages = parse_cell_voltages(data60)
-    pre_volt, insulation_resistance = struct.unpack(">HH", bytearray(data10[35:39]))
+    lifetime_discharge_energy, pre_volt, insulation_resistance = struct.unpack(">IHH", bytearray(data10[31:39]))
 
     return {
         'battery_id': parse_serial(data10[49:56]),
@@ -118,7 +118,7 @@ def parse_battery_data(data10: List[int], data60: List[int]) -> dict:
         'insulation_resistance': insulation_resistance,
         'software_version' : software_version,
         'hardware_version' : str(hardware_version, 'UTF-8'),
-        'lifetime_discharge_energy' : struct.unpack('>I', bytearray(data10[31:35]))[0],
+        'lifetime_discharge_energy' : lifetime_discharge_energy,
         'cell_voltages' : cell_voltages,
         'alarm_status' : parse_alarm_status(data10),
         'charge_relay_status' : parse_charge_relay_status(data10),
